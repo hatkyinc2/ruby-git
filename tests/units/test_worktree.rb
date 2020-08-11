@@ -1,5 +1,5 @@
 #!/usr/bin/env ruby
-
+require 'fileutils'
 require File.dirname(__FILE__) + '/../test_helper'
 
 SAMPLE_LAST_COMMIT = '5e53019b3238362144c2766f02a2c00d91fcc023'
@@ -46,5 +46,17 @@ class TestWorktree < Test::Unit::TestCase
     @git.worktree('/tmp/pp4').remove
 
     assert_equal(@git.worktrees.size, 2)
+  end
+
+  def test_worktree_prune
+    assert_equal(2, @git.worktrees.size)
+
+    @git.worktree('/tmp/pp1').add
+    assert_equal(3, @git.worktrees.size)
+    @git.worktrees.prune
+    assert_equal(2, @git.worktrees.size)
+    FileUtils.rm_rf('/tmp/pp1')
+    @git.worktrees.prune
+    assert_equal(1, @git.worktrees.size)
   end
 end

@@ -337,6 +337,10 @@ module Git
       command('worktree', ['remove', dir])
     end
 
+    def worktree_prune
+      command('worktree', ['prune'])
+    end
+
     def list_files(ref_dir)
       dir = File.join(@git_dir, 'refs', ref_dir)
       files = []

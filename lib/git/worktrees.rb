@@ -39,5 +39,9 @@ module Git
       end
       out
     end
+
+    def prune
+      @base.lib.worktree_prune
+    end
   end
 end
