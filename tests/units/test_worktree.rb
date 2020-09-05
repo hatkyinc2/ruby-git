@@ -59,4 +59,17 @@ class TestWorktree < Test::Unit::TestCase
     @git.worktrees.prune
     assert_equal(1, @git.worktrees.size)
   end
+
+# TODO: fix this test..
+# Git::GitExecuteError: git '--git-dir=/tmp/op1/.git' '--work-tree=/tmp/op1' '-c' 'color.ui=false' checkout 'new_branch'  2>&1:fatal: Unable to create '/tmp/op1/.git/index.lock': Not a directory
+# this seems related: (base.rb self.init)
+# Submodules have a .git *file* not a .git folder.
+#if File.file?('.git')
+#git_file = File.open('.git').read[8..-1].strip
+  def test_worktree_bracnh_checkout_test
+    @git.worktree('/tmp/op1').add
+    g=Git.open('/tmp/op1')
+    g.branch('new_branch').checkout
+    @git.worktree('/tmp/op1').remove
+  end
 end
