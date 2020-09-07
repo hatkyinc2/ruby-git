@@ -58,8 +58,8 @@ module Git
       # Submodules have a .git *file* not a .git folder.
       # This file's contents point to the location of
       # where the git refs are held (In the parent repo)
-      if File.file?('.git')
-        git_file = File.open('.git').read[8..-1].strip
+      if File.file?(opts[:repository])
+        git_file = File.open(opts[:repository]).read[8..-1].strip
         opts[:repository] = git_file
         opts[:index] = git_file + '/index'
       end
@@ -74,22 +74,35 @@ module Git
     def self.open(working_dir, opts={})
       self.new({:working_directory => working_dir}.merge(opts))
     end
-    
-    def initialize(options = {})
-      if working_dir = options[:working_directory]
-        options[:repository] ||= File.join(working_dir, '.git')
-        options[:index] ||= File.join(working_dir, '.git', 'index')
+
+    def initialize(opts = {})
+      if working_dir = opts[:working_directory]
+        opts[:repository] ||= File.join(working_dir, '.git')
+        opts[:index] ||= File.join(working_dir, '.git', 'index')
       end
-      if options[:log]
-        @logger = options[:log]
+
+      # Submodules have a .git *file* not a .git folder.
+      # This file's contents point to the location of
+      # where the git refs are held (In the parent repo)
+      if File.file?(opts[:repository])
+puts opts.inspect
+        git_file = File.open(opts[:repository]).read[8..-1].strip
+puts git_file
+        opts[:repository] = git_file
+        opts[:index] = git_file + '/index'
+puts opts.inspect
+      end
+
+      if opts[:log]
+        @logger = opts[:log]
         @logger.info("Starting Git")
       else
         @logger = nil
       end
      
-      @working_directory = options[:working_directory] ? Git::WorkingDirectory.new(options[:working_directory]) : nil
-      @repository = options[:repository] ? Git::Repository.new(options[:repository]) : nil 
-      @index = options[:index] ? Git::Index.new(options[:index], false) : nil
+      @working_directory = opts[:working_directory] ? Git::WorkingDirectory.new(opts[:working_directory]) : nil
+      @repository = opts[:repository] ? Git::Repository.new(opts[:repository]) : nil 
+      @index = opts[:index] ? Git::Index.new(opts[:index], false) : nil
     end
     
     # changes current working directory for a block
